@@ -1,6 +1,9 @@
 package contacts
 
 import (
+	"errors"
+	"strings"
+
 	"gorm.io/gorm"
 
 	"my/crm-golang/internal/models/contact"
@@ -30,10 +33,11 @@ func (r *Repository) GetByName(name string) (*contact.Contact, error) {
 }
 
 func (r *Repository) Create(contact *contact.Contact) error {
-	if err := r.db.Create(contact).Error; err != nil {
-		return err
+	err := r.db.Create(contact).Error
+	if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
+		return NameAlreadyUsedErr
 	}
-	return nil
+	return err
 }
 
 func (r *Repository) DeleteByName(name string) error {
@@ -44,7 +48,18 @@ func (r *Repository) DeleteByName(name string) error {
 }
 
 func (r *Repository) Update(contactModel *contact.Contact, contactUpdateData *contact.ContactUpdateData) error {
+	updateFields := r.getUpdateFields(contactUpdateData)
+
+	err := r.db.Model(contactModel).Updates(updateFields).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return ContactNotFoundErr
+	}
+	return err
+}
+
+func (r *Repository) getUpdateFields(contactUpdateData *contact.ContactUpdateData) map[string]interface{} {
 	updateFields := map[string]interface{}{}
+
 	if contactUpdateData.Name != "" {
 		updateFields["name"] = contactUpdateData.Name
 	}
@@ -58,8 +73,5 @@ func (r *Repository) Update(contactModel *contact.Contact, contactUpdateData *co
 		updateFields["birthday"] = contactUpdateData.Birthday
 	}
 
-	if err := r.db.Model(contactModel).Updates(updateFields).Error; err != nil {
-		return err
-	}
-	return nil
+	return updateFields
 }
