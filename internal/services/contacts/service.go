@@ -63,3 +63,20 @@ func (s *Service) GetSimilarNames(name string) ([]string, error) {
 
 	return s.searchEngine.Search(name, nameArray), nil
 }
+
+func (s *Service) GetLastContactsNames(count uint) ([]string, error) {
+	if count == 0 {
+		count = 10
+	}
+	contactModels, err := s.repository.GetLastContacts(count)
+	if err != nil {
+		return nil, err
+	}
+
+	names := make([]string, 0, len(contactModels))
+	for _, contactModel := range contactModels {
+		names = append(names, contactModel.Name)
+	}
+
+	return names, nil
+}

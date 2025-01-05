@@ -69,6 +69,14 @@ func (r *Repository) Update(contactModel *contact.Contact, contactUpdateData *co
 	return err
 }
 
+func (r *Repository) GetLastContacts(count uint) ([]*contact.Contact, error) {
+	models, err := r.GetAll()
+	if err != nil {
+		return nil, err
+	}
+	return models[:count], nil
+}
+
 func (r *Repository) getUpdateFields(contactUpdateData *contact.ContactUpdateData) map[string]interface{} {
 	updateFields := map[string]interface{}{}
 

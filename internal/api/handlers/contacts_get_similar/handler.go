@@ -1,4 +1,4 @@
-package contacts_search
+package contacts_get_similar
 
 import (
 	"encoding/json"

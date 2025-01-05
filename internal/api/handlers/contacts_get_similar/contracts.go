@@ -1,6 +1,5 @@
-package contacts_search
+package contacts_get_similar
 
 type Service interface {
-	//GetAll() ([]*contact.Contact, error)
 	GetSimilarNames(name string) ([]string, error)
 }
