@@ -7,3 +7,8 @@ var (
 	ContactNotFoundErr       = errors.New("contact not found")
 	NameAlreadyUsedErr       = errors.New("contact name already used")
 )
+
+var (
+	ContactLogNotFoundErr = errors.New("contact log not found")
+	ContactIdNotFoundErr  = errors.New("contact id not found")
+)

@@ -1,11 +1,13 @@
 package contact_logs
 
 import (
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
 
 	"my/crm-golang/internal/models/contact_log"
+	"my/crm-golang/internal/my_errors"
 )
 
 type Repository struct {
@@ -32,10 +34,11 @@ func (r *Repository) GetById(id int) (*contact_log.ContactLog, error) {
 }
 
 func (r *Repository) Create(contact *contact_log.ContactLog) error {
-	if err := r.db.Create(contact).Error; err != nil {
-		return err
+	err := r.db.Create(contact).Error
+	if err != nil && strings.Contains(err.Error(), "violates foreign key constraint") {
+		return my_errors.ContactIdNotFoundErr
 	}
-	return nil
+	return err
 }
 
 func (r *Repository) DeleteById(id int) error {

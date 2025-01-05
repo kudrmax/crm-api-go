@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 
 	"my/crm-golang/internal/models/contact"
-	errors2 "my/crm-golang/internal/my_errors"
+	"my/crm-golang/internal/my_errors"
 )
 
 type Repository struct {
@@ -29,7 +29,7 @@ func (r *Repository) GetByName(name string) (*contact.Contact, error) {
 	var contactModel contact.Contact
 	err := r.db.Where("name = ?", name).First(&contactModel).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, errors2.ContactNotFoundErr
+		return nil, my_errors.ContactNotFoundErr
 	}
 
 	return &contactModel, nil
@@ -47,7 +47,7 @@ func (r *Repository) GetAll() ([]*contact.Contact, error) {
 func (r *Repository) Create(contact *contact.Contact) error {
 	err := r.db.Create(contact).Error
 	if err != nil && strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
-		return errors2.NameAlreadyUsedErr
+		return my_errors.NameAlreadyUsedErr
 	}
 	return err
 }
@@ -64,7 +64,7 @@ func (r *Repository) Update(contactModel *contact.Contact, contactUpdateData *co
 
 	err := r.db.Model(contactModel).Updates(updateFields).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return errors2.ContactNotFoundErr
+		return my_errors.ContactNotFoundErr
 	}
 	return err
 }

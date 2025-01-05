@@ -10,6 +10,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	"my/crm-golang/internal/api/handlers/contact_logs_create"
 	"my/crm-golang/internal/api/handlers/contacts_create"
 	"my/crm-golang/internal/api/handlers/contacts_delete"
 	"my/crm-golang/internal/api/handlers/contacts_get_all"
@@ -18,14 +19,11 @@ import (
 	"my/crm-golang/internal/api/handlers/contacts_get_similar"
 	"my/crm-golang/internal/api/handlers/contacts_update"
 	"my/crm-golang/internal/api/handlers/info"
+	"my/crm-golang/internal/services/contact_logs"
 	"my/crm-golang/internal/services/contacts"
+	logsrepo "my/crm-golang/internal/storage/postgres/contact_logs"
 	contactsrepo "my/crm-golang/internal/storage/postgres/contacts"
 )
-
-type App struct {
-	chiRouter      *chi.Mux
-	contactService *contacts.Service
-}
 
 func main() {
 	fmt.Print("Hello!")
@@ -40,10 +38,18 @@ func main() {
 	app.chiRouter.Put("/api/v2/contacts/{name}/update/", contacts_update.New(app.contactService).Handle)
 	app.chiRouter.Delete("/api/v2/contacts/{name}/delete/", contacts_delete.New(app.contactService).Handle)
 
+	app.chiRouter.Post("/api/v2/contacts/{name}/add_log/", contact_logs_create.New(app.contactLogService).Handle)
+
 	log.Println("Starting server on :8080...")
 	if err := http.ListenAndServe(":8080", app.chiRouter); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
+}
+
+type App struct {
+	chiRouter         *chi.Mux
+	contactService    *contacts.Service
+	contactLogService *contact_logs.Service
 }
 
 func NewApp() *App {
@@ -53,10 +59,12 @@ func NewApp() *App {
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
-	repository := contactsrepo.New(db)
+	repositoryContacts := contactsrepo.New(db)
+	repositoryContactLogs := logsrepo.New(db)
 
 	// services
-	contactService := contacts.NewService(repository)
+	contactService := contacts.NewService(repositoryContacts)
+	contactLogService := contact_logs.NewService(repositoryContactLogs)
 
 	// chi router
 	chiRouter := chi.NewRouter()
@@ -64,8 +72,9 @@ func NewApp() *App {
 
 	// app
 	return &App{
-		contactService: contactService,
-		chiRouter:      chiRouter,
+		contactService:    contactService,
+		contactLogService: contactLogService,
+		chiRouter:         chiRouter,
 	}
 }
 

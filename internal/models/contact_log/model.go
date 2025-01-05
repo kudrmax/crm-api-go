@@ -6,12 +6,12 @@ type ContactLog struct {
 	Id         int       `json:"id"`
 	ContactId  int       `json:"contact_id"`
 	Datetime   time.Time `json:"datetime"`
-	LogMessage string    `json:"log_massage"`
+	LogMessage string    `json:"message"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 }
 
-func (l ContactLog) SetTimestampToNow() {
+func (l *ContactLog) SetTimestampToNow() {
 	l.Datetime = time.Now()
 }
 
