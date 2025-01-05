@@ -81,7 +81,7 @@ func (s *Service) GetLastContactsNames(count uint) ([]string, error) {
 		return nil, err
 	}
 
-	names := make([]string, 0, len(contactModels))
+	names := make([]string, 0, len(contactModels)) // TODO переделать через нормальный запрос через gorm
 	for _, contactModel := range contactModels {
 		names = append(names, contactModel.Name)
 	}
