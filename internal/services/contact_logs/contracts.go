@@ -5,7 +5,7 @@ import (
 )
 
 type Repository interface {
-	GetById(id int) (*contact_log.ContactLog, error)
+	GetById(id int) ([]*contact_log.ContactLog, error)
 	Create(contactLog *contact_log.ContactLog) error
 	DeleteById(id int) error
 	Update(contactLog *contact_log.ContactLog, contactLogUpdateData *contact_log.ContactLogUpdateData) error

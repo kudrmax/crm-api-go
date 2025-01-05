@@ -25,12 +25,20 @@ func New(
 	}
 }
 
-func (r *Repository) GetById(id int) (*contact_log.ContactLog, error) {
-	var contactLogModel contact_log.ContactLog
-	if err := r.db.Where("id = ?", id).First(&contactLogModel).Error; err != nil {
+func (r *Repository) GetById(id int) ([]*contact_log.ContactLog, error) {
+	models := make([]*contact_log.ContactLog, 0)
+	if err := r.db.Find(&models).Error; err != nil {
 		return nil, err
 	}
-	return &contactLogModel, nil
+
+	result := make([]*contact_log.ContactLog, 0, len(models))
+	for _, model := range models {
+		if model.ContactId == id {
+			result = append(result, model)
+		}
+	}
+
+	return result, nil
 }
 
 func (r *Repository) Create(contact *contact_log.ContactLog) error {

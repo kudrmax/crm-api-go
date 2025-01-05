@@ -11,6 +11,7 @@ import (
 	"gorm.io/gorm"
 
 	"my/crm-golang/internal/api/handlers/contact_logs_create"
+	"my/crm-golang/internal/api/handlers/contact_logs_get_all_list"
 	"my/crm-golang/internal/api/handlers/contacts_create"
 	"my/crm-golang/internal/api/handlers/contacts_delete"
 	"my/crm-golang/internal/api/handlers/contacts_get_all"
@@ -39,7 +40,7 @@ func main() {
 	app.chiRouter.Delete("/api/v2/contacts/{name}/delete/", contacts_delete.New(app.contactService).Handle)
 
 	app.chiRouter.Post("/api/v2/contacts/{name}/add_log/", contact_logs_create.New(app.contactLogService, app.contactService).Handle)
-	app.chiRouter.Get("/api/v2/contacts/{name}/get_all_logs/list/", contact_logs_create.New(app.contactLogService, app.contactService).Handle)
+	app.chiRouter.Get("/api/v2/contacts/{name}/get_all_logs/list/", contact_logs_get_all_list.New(app.contactLogService, app.contactService).Handle)
 
 	log.Println("Starting server on :8080...")
 	if err := http.ListenAndServe(":8080", app.chiRouter); err != nil {
