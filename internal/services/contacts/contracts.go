@@ -2,6 +2,8 @@ package contacts
 
 import "my/crm-golang/internal/models/contact"
 
+//go:generate mockery --all
+
 type Repository interface {
 	GetByName(name string) (*contact.Contact, error)
 	GetAll() ([]*contact.Contact, error)
