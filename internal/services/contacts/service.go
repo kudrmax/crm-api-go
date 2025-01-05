@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"my/crm-golang/internal/models/contact"
-	contactsrepo "my/crm-golang/internal/storage/postgres/contacts"
+	"my/crm-golang/internal/my_errors"
 )
 
 type Service struct {
@@ -26,13 +26,16 @@ func (s *Service) GetAll() ([]*contact.Contact, error) {
 }
 
 func (s *Service) Create(contact *contact.Contact) error {
+	if contact.Name == "" {
+		return my_errors.NameAlreadyUsedErr
+	}
 	return s.repository.Create(contact)
 }
 
 func (s *Service) Update(name string, contactUpdateData *contact.ContactUpdateData) error {
 	contactModel, err := s.GetByName(name)
-	if errors.Is(err, contactsrepo.ContactNotFoundErr) {
-		return contactsrepo.ContactNotFoundErr
+	if errors.Is(err, my_errors.ContactNotFoundErr) {
+		return my_errors.ContactNotFoundErr
 	}
 	if err != nil {
 		return err

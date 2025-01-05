@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"my/crm-golang/internal/storage/postgres/contacts"
+	"my/crm-golang/internal/my_errors"
 )
 
 type Handler struct {
@@ -28,7 +28,7 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	contactModel, err := h.service.GetByName(name)
-	if errors.Is(err, contacts.ContactNotFoundErr) {
+	if errors.Is(err, my_errors.ContactNotFoundErr) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}

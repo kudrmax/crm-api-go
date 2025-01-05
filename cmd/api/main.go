@@ -10,6 +10,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	"my/crm-golang/internal/api/handlers/contacts_create"
 	"my/crm-golang/internal/api/handlers/contacts_get_all"
 	"my/crm-golang/internal/api/handlers/contacts_get_one"
 	"my/crm-golang/internal/api/handlers/info"
@@ -27,8 +28,9 @@ func main() {
 
 	app := NewApp()
 	app.chiRouter.Get("/__info/", info.New().Handle)
-	app.chiRouter.Get("/contact/{name}/", contacts_get_one.New(app.contactService).Handle)
 	app.chiRouter.Get("/contacts/", contacts_get_all.New(app.contactService).Handle)
+	app.chiRouter.Get("/contact/{name}/", contacts_get_one.New(app.contactService).Handle)
+	app.chiRouter.Post("/contact/", contacts_create.New(app.contactService).Handle)
 
 	log.Println("Starting server on :8080...")
 	if err := http.ListenAndServe(":8080", app.chiRouter); err != nil {
