@@ -23,6 +23,14 @@ func (s *Service) GetByName(name string) (*contact.Contact, error) {
 	return s.repository.GetByName(name)
 }
 
+func (s *Service) GetIdByName(name string) (int, error) {
+	contactModel, err := s.GetByName(name)
+	if err != nil {
+		return 0, err
+	}
+	return contactModel.Id, nil
+}
+
 func (s *Service) GetAll() ([]*contact.Contact, error) {
 	return s.repository.GetAll()
 }

@@ -38,7 +38,8 @@ func main() {
 	app.chiRouter.Put("/api/v2/contacts/{name}/update/", contacts_update.New(app.contactService).Handle)
 	app.chiRouter.Delete("/api/v2/contacts/{name}/delete/", contacts_delete.New(app.contactService).Handle)
 
-	app.chiRouter.Post("/api/v2/contacts/{name}/add_log/", contact_logs_create.New(app.contactLogService).Handle)
+	app.chiRouter.Post("/api/v2/contacts/{name}/add_log/", contact_logs_create.New(app.contactLogService, app.contactService).Handle)
+	app.chiRouter.Get("/api/v2/contacts/{name}/get_all_logs/list/", contact_logs_create.New(app.contactLogService, app.contactService).Handle)
 
 	log.Println("Starting server on :8080...")
 	if err := http.ListenAndServe(":8080", app.chiRouter); err != nil {
