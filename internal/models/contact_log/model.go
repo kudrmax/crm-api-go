@@ -1,4 +1,4 @@
-package log_message
+package contact_log
 
 import "time"
 
@@ -13,8 +13,18 @@ type ContactLog struct {
 	//CreatedBy  string
 }
 
+func (l ContactLog) SetTimestampToNow() {
+	l.Datetime = time.Now()
+}
+
+type ContactLogUpdateData struct {
+	ContactId  int
+	Datetime   time.Time
+	LogMessage string
+}
+
 //class MLog(Base):
-//__tablename__ = "log_message"
+//__tablename__ = "contact_log"
 //
 //id = Column(Integer, primary_key=True)
 //contact_id = Column(UUID(as_uuid=True), ForeignKey('contact.id', ondelete="CASCADE"), nullable=False)
