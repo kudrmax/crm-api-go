@@ -3,13 +3,13 @@ package contact
 import "time"
 
 type Contact struct {
-	Id        int
-	Name      string
-	Phone     string
-	Telegram  string
-	Birthday  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Id        int       `json:"id"`
+	Name      string    `json:"name"`
+	Phone     string    `json:"phone"`
+	Telegram  string    `json:"telegram"`
+	Birthday  string    `json:"birthday"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type ContactUpdateData struct {

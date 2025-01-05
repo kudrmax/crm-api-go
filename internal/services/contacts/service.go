@@ -21,6 +21,10 @@ func (s *Service) GetByName(name string) (*contact.Contact, error) {
 	return s.repository.GetByName(name)
 }
 
+func (s *Service) GetAll() ([]*contact.Contact, error) {
+	return s.repository.GetAll()
+}
+
 func (s *Service) Create(contact *contact.Contact) error {
 	return s.repository.Create(contact)
 }

@@ -1,13 +1,8 @@
-package contacts_get_one
+package contacts_get_all
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
-
-	"github.com/go-chi/chi/v5"
-
-	"my/crm-golang/internal/storage/postgres/contacts"
 )
 
 type Handler struct {
@@ -21,17 +16,7 @@ func New(service Service) *Handler {
 }
 
 func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
-	name := chi.URLParam(r, "name")
-	if name == "" {
-		http.Error(w, "Name is empty", http.StatusBadRequest)
-		return
-	}
-
-	contactModel, err := h.service.GetByName(name)
-	if errors.Is(err, contacts.ContactNotFoundErr) {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
+	contactModels, err := h.service.GetAll()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -39,7 +24,7 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 
 	//response := map[string]interface{}{"data": contactModel}
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(contactModel)
+	err = json.NewEncoder(w).Encode(contactModels)
 	if err != nil {
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return

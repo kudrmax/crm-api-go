@@ -26,10 +26,21 @@ func New(
 
 func (r *Repository) GetByName(name string) (*contact.Contact, error) {
 	var contactModel contact.Contact
-	if err := r.db.Where("name = ?", name).First(&contactModel).Error; err != nil {
+	err := r.db.Where("name = ?", name).First(&contactModel).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, ContactNotFoundErr
+	}
+
+	return &contactModel, nil
+}
+
+func (r *Repository) GetAll() ([]*contact.Contact, error) {
+	contactModels := make([]*contact.Contact, 0)
+	err := r.db.Find(&contactModels).Error
+	if err != nil {
 		return nil, err
 	}
-	return &contactModel, nil
+	return contactModels, nil
 }
 
 func (r *Repository) Create(contact *contact.Contact) error {
