@@ -5,10 +5,12 @@ import (
 
 	"my/crm-golang/internal/models/contact"
 	"my/crm-golang/internal/my_errors"
+	"my/crm-golang/internal/services/search"
 )
 
 type Service struct {
-	repository Repository
+	repository   Repository
+	searchEngine search.SearchEngine
 }
 
 func NewService(repository Repository) *Service {
@@ -46,4 +48,18 @@ func (s *Service) Update(name string, contactUpdateData *contact.ContactUpdateDa
 
 func (s *Service) DeleteByName(name string) error {
 	return s.repository.DeleteByName(name)
+}
+
+func (s *Service) GetSimilarNames(name string) ([]string, error) {
+	contactModels, err := s.GetAll()
+	if err != nil {
+		return []string{}, err
+	}
+
+	nameArray := make([]string, 0, len(contactModels))
+	for _, contactModel := range contactModels {
+		nameArray = append(nameArray, contactModel.Name)
+	}
+
+	return s.searchEngine.Search(name, nameArray), nil
 }
