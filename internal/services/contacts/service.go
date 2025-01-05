@@ -3,9 +3,8 @@ package contacts
 import (
 	"errors"
 
-	"gorm.io/gorm"
-
 	"my/crm-golang/internal/models/contact"
+	"my/crm-golang/internal/storage/postgres/contacts"
 )
 
 type Service struct {
@@ -31,7 +30,7 @@ func (s *Service) Create(contact *contact.Contact) error {
 
 func (s *Service) Update(name string, contactUpdateData *contact.ContactUpdateData) error {
 	contactModel, err := s.GetByName(name)
-	if errors.Is(err, gorm.ErrRecordNotFound) {
+	if errors.Is(err, contacts.ContactNotFoundErr) {
 		return NotFoundErr
 	}
 	if err != nil {
