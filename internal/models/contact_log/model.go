@@ -7,10 +7,8 @@ type ContactLog struct {
 	ContactId  int // `json:"contact_id"`
 	Datetime   time.Time
 	LogMessage string
-
-	//CreatedAt  time.Time
-	//UpdatedAt  time.Time
-	//CreatedBy  string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 func (l ContactLog) SetTimestampToNow() {

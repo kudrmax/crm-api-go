@@ -1,15 +1,15 @@
 package contact
 
-type Contact struct {
-	Id       int
-	Name     string
-	Phone    string
-	Telegram string
-	Birthday string
+import "time"
 
-	//CreatedAt time.Time
-	//UpdatedAt time.Time
-	//CreatedBy string
+type Contact struct {
+	Id        int
+	Name      string
+	Phone     string
+	Telegram  string
+	Birthday  string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type ContactUpdateData struct {
