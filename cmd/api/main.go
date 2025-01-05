@@ -16,6 +16,7 @@ import (
 	"my/crm-golang/internal/api/handlers/contacts_get_one"
 	"my/crm-golang/internal/api/handlers/contacts_update"
 	"my/crm-golang/internal/api/handlers/info"
+	"my/crm-golang/internal/api/handlers/not_implemented"
 	"my/crm-golang/internal/services/contacts"
 	contactsrepo "my/crm-golang/internal/storage/postgres/contacts"
 )
@@ -29,12 +30,14 @@ func main() {
 	fmt.Print("Hello!")
 
 	app := NewApp()
-	app.chiRouter.Get("/__info/", info.New().Handle)
-	app.chiRouter.Get("/contacts/", contacts_get_all.New(app.contactService).Handle)
-	app.chiRouter.Get("/contact/{name}/", contacts_get_one.New(app.contactService).Handle)
-	app.chiRouter.Post("/contact/", contacts_create.New(app.contactService).Handle)
-	app.chiRouter.Put("/contact/{name}", contacts_update.New(app.contactService).Handle)
-	app.chiRouter.Delete("/contact/{name}", contacts_delete.New(app.contactService).Handle)
+	app.chiRouter.Get("/api/v2/__info/", info.New().Handle)
+	app.chiRouter.Get("/api/v2/contacts/", contacts_get_all.New(app.contactService).Handle)
+	app.chiRouter.Get("/api/v2/contacts/get_last_contacts/", not_implemented.New().Handle)
+	app.chiRouter.Get("/api/v2/contact/{name}/", contacts_get_one.New(app.contactService).Handle)
+	app.chiRouter.Post("/api/v2/contact/", contacts_create.New(app.contactService).Handle)
+	app.chiRouter.Put("/api/v2/contact/{name}/", contacts_update.New(app.contactService).Handle)
+	app.chiRouter.Delete("/api/v2/contact/{name}/", contacts_delete.New(app.contactService).Handle)
+	app.chiRouter.Delete("/api/v2/search/{name}/", not_implemented.New().Handle)
 
 	log.Println("Starting server on :8080...")
 	if err := http.ListenAndServe(":8080", app.chiRouter); err != nil {
@@ -63,4 +66,12 @@ func NewApp() *App {
 		contactService: contactService,
 		chiRouter:      chiRouter,
 	}
+}
+
+func getRouter() http.Handler {
+	r := chi.NewRouter()
+	r.Use(AdminOnly)
+	r.Get("/", adminIndex)
+	r.Get("/accounts", adminListAccounts)
+	return r
 }
