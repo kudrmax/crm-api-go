@@ -6,8 +6,10 @@ db_up:
 db_down:
 	docker-compose down
 
+vendor:
+	go mod vendor && go mod tidy && go mod verify
+
 run-migrations:
 	go run migrations/run_migrations.go
 
-vendor:
-	go mod tidy && go mod vendor && go mod verify
+
