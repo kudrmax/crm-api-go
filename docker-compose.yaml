@@ -13,8 +13,31 @@ services:
     ports:
       - "${POSTGRES_PORT}:5432"
     volumes:
-#      - pgdata:/var/lib/postgresql/data  # чтобы хранить данные в конкретном месте памяти
+      #- pgdata:/var/lib/postgresql/data  # чтобы хранить данные в конкретном месте памяти
       - ./migrations/postgresql/master:/docker-entrypoint-initdb.d  # Скрипты в этой папке автоматически выполняются при первом запуске контейнера, если в целевой базе данных ещё нет данных.
+  api_go:
+    container_name: "api_go"
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: ./docker/api/go/Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+  api_python:
+    container_name: "api_python"
+    build:
+      context: .
+      dockerfile: docker/api/python/Dockerfile
+    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+    ports:
+      - "8001:8001"
+    volumes:
+      - .:/api/python
+    env_file:
+      - .env
   backup:
     container_name: "backup"
     image: postgres:15
@@ -43,27 +66,6 @@ services:
     command: python3 bot.py
     volumes:
       - .:/bot
-    env_file:
-      - .env
-  api_python:
-    container_name: "api_python"
-    build:
-      context: .
-      dockerfile: docker/api/python/Dockerfile.python
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-    ports:
-      - "8000:8000"
-    volumes:
-      - .:/api_python
-    env_file:
-      - .env
-  api_go:
-    container_name: "api_go"
-    build:
-      context: .
-      dockerfile: ./docker/api/go/Dockerfile
-    ports:
-      - "8000:8000"
     env_file:
       - .env
 #  load_to_yandex_drive:
