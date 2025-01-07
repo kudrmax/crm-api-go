@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -27,9 +26,11 @@ import (
 )
 
 func main() {
-	fmt.Print("Hello!")
+	log.Print("Started!")
 
 	app := NewApp()
+	log.Print("App was created!")
+
 	app.chiRouter.Get("/api/v2/__info/", info.New().Handle)
 	app.chiRouter.Get("/api/v2/contacts/get/", contacts_get_all.New(app.contactService).Handle)
 	app.chiRouter.Post("/api/v2/contacts/create/", contacts_create.New(app.contactService).Handle)
@@ -41,9 +42,10 @@ func main() {
 
 	app.chiRouter.Post("/api/v2/contacts/{name}/add_log/", contact_logs_create.New(app.contactLogService, app.contactService).Handle)
 	app.chiRouter.Get("/api/v2/contacts/{name}/get_all_logs/list/", contact_logs_get_all_list.New(app.contactLogService, app.contactService).Handle)
+	log.Print("Router set up!")
 
-	log.Println("Starting server on :8080...")
-	if err := http.ListenAndServe(":8080", app.chiRouter); err != nil {
+	log.Println("Starting server on :8000...")
+	if err := http.ListenAndServe(":8000", app.chiRouter); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 }
@@ -56,13 +58,14 @@ type App struct {
 
 func NewApp() *App {
 	// database
-	dsn := "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable"
+	dsn := "host=db user=dev_u password=dev_p dbname=dev_db port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	repositoryContacts := contactsrepo.New(db)
 	repositoryContactLogs := logsrepo.New(db)
+	log.Print("Connected to database!")
 
 	// services
 	contactService := contacts.NewService(repositoryContacts)

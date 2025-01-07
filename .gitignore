@@ -2,3 +2,4 @@
 python/crm
 vendor
 storage.sqlite
+.env

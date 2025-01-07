@@ -1,0 +1,87 @@
+services:
+  db:
+    container_name: "db"
+    image: postgres:15
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_DATABASE=${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+#      - pgdata:/var/lib/postgresql/data  # чтобы хранить данные в конкретном месте памяти
+      - ./migrations/postgresql/master:/docker-entrypoint-initdb.d  # Скрипты в этой папке автоматически выполняются при первом запуске контейнера, если в целевой базе данных ещё нет данных.
+  backup:
+    container_name: "backup"
+    image: postgres:15
+    depends_on:
+      - db
+    volumes:
+      - ./backups:/backups
+    command: >
+      bash -c "while true; do
+        PGPASSWORD=$$POSTGRES_PASSWORD pg_dump -h db -U $$POSTGRES_USER -Fc $$POSTGRES_DB > /backups/$$(date +%Y-%m-%d-%H-%M-%S).dump
+        echo ""Backup done at $$(date +%Y-%m-%d_%H:%M:%S)""
+        ls -1 /backups/*.dump | head -n -$$MAX_BACKUP_COUNT | xargs rm -f
+        sleep $$BACKUP_DELTA
+      done"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DATABASE}
+      - BACKUP_DELTA=3600
+      - MAX_BACKUP_COUNT=5
+  telegram_bot_python:
+    container_name: "telegram_bot_python"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python3 bot.py
+    volumes:
+      - .:/bot
+    env_file:
+      - .env
+  api_python:
+    container_name: "api_python"
+    build:
+      context: .
+      dockerfile: docker/api/python/Dockerfile.python
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/api_python
+    env_file:
+      - .env
+  api_go:
+    container_name: "api_go"
+    build:
+      context: .
+      dockerfile: ./docker/api/go/Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+#  load_to_yandex_drive:
+#    container_name: "load_to_yandex_drive"
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.backup
+#    volumes:
+#      - ./src/backup_to_yandex_disk:/yandex_disk/backup_to_yandex_disk
+#      - ./src:/src
+#      - ./backups:/backups
+#    restart: unless-stopped
+#    command: >
+#      sh -c "while true; do
+#        python3 /yandex_disk/backup_to_yandex_disk/yandex_disk_backup.py
+#        sleep 3600
+#      done"
+#    env_file:
+#      - .env
+volumes:
+  pgdata:
