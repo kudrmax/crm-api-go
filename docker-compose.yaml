@@ -15,59 +15,41 @@ services:
     volumes:
       #- pgdata:/var/lib/postgresql/data  # чтобы хранить данные в конкретном месте памяти
       - ./migrations/postgresql/master:/docker-entrypoint-initdb.d  # Скрипты в этой папке автоматически выполняются при первом запуске контейнера, если в целевой базе данных ещё нет данных.
-  api_go:
-    container_name: "api_go"
+    networks:
+      - crm_network
+  api:
+    container_name: "api"
     depends_on:
       - db
     build:
       context: .
-      dockerfile: ./docker/api/go/Dockerfile
+      dockerfile: docker/api/Dockerfile
     ports:
       - "8000:8000"
     env_file:
       - .env
-  api_python:
-    container_name: "api_python"
-    build:
-      context: .
-      dockerfile: docker/api/python/Dockerfile
-    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
-    ports:
-      - "8001:8001"
-    volumes:
-      - .:/api/python
-    env_file:
-      - .env
-  backup:
-    container_name: "backup"
-    image: postgres:15
-    depends_on:
-      - db
-    volumes:
-      - ./backups:/backups
-    command: >
-      bash -c "while true; do
-        PGPASSWORD=$$POSTGRES_PASSWORD pg_dump -h db -U $$POSTGRES_USER -Fc $$POSTGRES_DB > /backups/$$(date +%Y-%m-%d-%H-%M-%S).dump
-        echo ""Backup done at $$(date +%Y-%m-%d_%H:%M:%S)""
-        ls -1 /backups/*.dump | head -n -$$MAX_BACKUP_COUNT | xargs rm -f
-        sleep $$BACKUP_DELTA
-      done"
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DATABASE}
-      - BACKUP_DELTA=3600
-      - MAX_BACKUP_COUNT=5
-  telegram_bot_python:
-    container_name: "telegram_bot_python"
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: python3 bot.py
-    volumes:
-      - .:/bot
-    env_file:
-      - .env
+    networks:
+      - crm_network
+#  backup:
+#    container_name: "backup"
+#    image: postgres:15
+#    depends_on:
+#      - db
+#    volumes:
+#      - ./backups:/backups
+#    command: >
+#      bash -c "while true; do
+#        PGPASSWORD=$$POSTGRES_PASSWORD pg_dump -h db -U $$POSTGRES_USER -Fc $$POSTGRES_DB > /backups/$$(date +%Y-%m-%d-%H-%M-%S).dump
+#        echo ""Backup done at $$(date +%Y-%m-%d_%H:%M:%S)""
+#        ls -1 /backups/*.dump | head -n -$$MAX_BACKUP_COUNT | xargs rm -f
+#        sleep $$BACKUP_DELTA
+#      done"
+#    environment:
+#      - POSTGRES_USER=${POSTGRES_USER}
+#      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+#      - POSTGRES_DB=${POSTGRES_DATABASE}
+#      - BACKUP_DELTA=3600
+#      - MAX_BACKUP_COUNT=5
 #  load_to_yandex_drive:
 #    container_name: "load_to_yandex_drive"
 #    build:
@@ -85,5 +67,8 @@ services:
 #      done"
 #    env_file:
 #      - .env
-volumes:
-  pgdata:
+#volumes:
+#  pgdata:
+networks:
+  crm_network:
+    external: true

@@ -19,6 +19,7 @@ import (
 	"my/crm-golang/internal/api/handlers/contacts_get_similar"
 	"my/crm-golang/internal/api/handlers/contacts_update"
 	"my/crm-golang/internal/api/handlers/info"
+	"my/crm-golang/internal/api/handlers/not_implemented"
 	"my/crm-golang/internal/services/contact_logs"
 	"my/crm-golang/internal/services/contacts"
 	logsrepo "my/crm-golang/internal/storage/postgres/contact_logs"
@@ -31,7 +32,8 @@ func main() {
 	app := NewApp()
 	log.Print("App was created!")
 
-	app.chiRouter.Get("/api/v2/__info/", info.New().Handle)
+	app.chiRouter.Get("/__info/", info.New().Handle)
+
 	app.chiRouter.Get("/api/v2/contacts/get/", contacts_get_all.New(app.contactService).Handle)
 	app.chiRouter.Post("/api/v2/contacts/create/", contacts_create.New(app.contactService).Handle)
 	app.chiRouter.Get("/api/v2/contacts/get_lasts/", contacts_get_last_names.New(app.contactService).Handle)
@@ -40,8 +42,19 @@ func main() {
 	app.chiRouter.Put("/api/v2/contacts/{name}/update/", contacts_update.New(app.contactService).Handle)
 	app.chiRouter.Delete("/api/v2/contacts/{name}/delete/", contacts_delete.New(app.contactService).Handle)
 
-	app.chiRouter.Post("/api/v2/contacts/{name}/add_log/", contact_logs_create.New(app.contactLogService, app.contactService).Handle)
-	app.chiRouter.Get("/api/v2/contacts/{name}/get_all_logs/list/", contact_logs_get_all_list.New(app.contactLogService, app.contactService).Handle)
+	app.chiRouter.Post("/api/v2/contacts/{name}/logs/create/", contact_logs_create.New(app.contactLogService, app.contactService).Handle)
+	app.chiRouter.Post("/api/v2/contacts/{name}/logs/create/empty/", not_implemented.New().Handle)
+	app.chiRouter.Get("/api/v2/contacts/{name}/logs/get_all/list/", contact_logs_get_all_list.New(app.contactLogService, app.contactService).Handle)
+	app.chiRouter.Get("/api/v2/logs/last_logs/", not_implemented.New().Handle)
+	app.chiRouter.Get("/api/v2/logs/{log_id}/get/", not_implemented.New().Handle)
+	app.chiRouter.Put("/api/v2/logs/{log_id}/update/", not_implemented.New().Handle)
+	app.chiRouter.Delete("/api/v2/logs/{log_id}/delete/", not_implemented.New().Handle)
+
+	app.chiRouter.Get("/api/v2/stats/count_of_interactions/", not_implemented.New().Handle)
+	app.chiRouter.Get("/api/v2/stats/count_of_interactions/{name}/", not_implemented.New().Handle)
+	app.chiRouter.Get("/api/v2/stats/days_count_since_last_interaction/", not_implemented.New().Handle)
+	app.chiRouter.Get("/api/v2/stats/days_count_since_last_interaction/{name}", not_implemented.New().Handle)
+
 	log.Print("Router set up!")
 
 	log.Println("Starting server on :8000...")
