@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 
 	"my/crm-golang/internal/api/handlers/contact_logs_create"
+	"my/crm-golang/internal/api/handlers/contact_logs_create_empty"
 	"my/crm-golang/internal/api/handlers/contact_logs_get_all_list"
 	"my/crm-golang/internal/api/handlers/contacts_create"
 	"my/crm-golang/internal/api/handlers/contacts_delete"
@@ -43,7 +44,7 @@ func main() {
 	app.chiRouter.Delete("/api/v2/contacts/{name}/delete/", contacts_delete.New(app.contactService).Handle)
 
 	app.chiRouter.Post("/api/v2/contacts/{name}/logs/create/", contact_logs_create.New(app.contactLogService, app.contactService).Handle)
-	app.chiRouter.Post("/api/v2/contacts/{name}/logs/create/empty/", not_implemented.New().Handle)
+	app.chiRouter.Post("/api/v2/contacts/{name}/logs/create/empty/", contact_logs_create_empty.New(app.contactLogService, app.contactService).Handle)
 	app.chiRouter.Get("/api/v2/contacts/{name}/logs/get_all/list/", contact_logs_get_all_list.New(app.contactLogService, app.contactService).Handle)
 	app.chiRouter.Get("/api/v2/logs/last_logs/", not_implemented.New().Handle)
 	app.chiRouter.Get("/api/v2/logs/{log_id}/get/", not_implemented.New().Handle)
@@ -71,7 +72,7 @@ type App struct {
 
 func NewApp() *App {
 	// database
-	dsn := "host=db user=dev_u password=dev_p dbname=dev_db port=5432 sslmode=disable"
+	dsn := "host=localhost user=dev_u password=dev_p dbname=dev_db port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
