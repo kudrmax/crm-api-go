@@ -26,6 +26,7 @@ func New(
 }
 
 func (r *Repository) GetById(id int) ([]*contact_log.ContactLog, error) {
+	// TODO переписать через if err := r.db.Where("id = ?", id).First(&contact_log.ContactLog{}).Error; err != nil {
 	models := make([]*contact_log.ContactLog, 0)
 	if err := r.db.Find(&models).Error; err != nil {
 		return nil, err
@@ -39,6 +40,15 @@ func (r *Repository) GetById(id int) ([]*contact_log.ContactLog, error) {
 	}
 
 	return result, nil
+}
+
+func (r *Repository) GetByLogId(id int) (*contact_log.ContactLog, error) {
+	log := &contact_log.ContactLog{}
+	if err := r.db.Where("id = ?", id).First(&log).Error; err != nil {
+		return nil, err
+	}
+
+	return log, nil
 }
 
 func (r *Repository) Create(contact *contact_log.ContactLog) error {

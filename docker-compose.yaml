@@ -15,8 +15,8 @@ services:
     volumes:
       #- pgdata:/var/lib/postgresql/data  # чтобы хранить данные в конкретном месте памяти
       - ./migrations/postgresql/master:/docker-entrypoint-initdb.d  # Скрипты в этой папке автоматически выполняются при первом запуске контейнера, если в целевой базе данных ещё нет данных.
-    networks:
-      - crm_network
+#    networks:
+#      - crm_network
   api:
     container_name: "api"
     depends_on:

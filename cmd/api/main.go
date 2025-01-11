@@ -12,6 +12,7 @@ import (
 	"my/crm-golang/internal/api/handlers/contact_logs_create"
 	"my/crm-golang/internal/api/handlers/contact_logs_create_empty"
 	"my/crm-golang/internal/api/handlers/contact_logs_get_all_list"
+	"my/crm-golang/internal/api/handlers/contact_logs_get_one"
 	"my/crm-golang/internal/api/handlers/contacts_create"
 	"my/crm-golang/internal/api/handlers/contacts_delete"
 	"my/crm-golang/internal/api/handlers/contacts_get_all"
@@ -47,9 +48,9 @@ func main() {
 	app.chiRouter.Post("/api/v2/contacts/{name}/logs/create/empty/", contact_logs_create_empty.New(app.contactLogService, app.contactService).Handle)
 	app.chiRouter.Get("/api/v2/contacts/{name}/logs/get_all/list/", contact_logs_get_all_list.New(app.contactLogService, app.contactService).Handle)
 	app.chiRouter.Get("/api/v2/logs/last_logs/", not_implemented.New().Handle)
-	app.chiRouter.Get("/api/v2/logs/{log_id}/get/", not_implemented.New().Handle)
-	app.chiRouter.Put("/api/v2/logs/{log_id}/update/", not_implemented.New().Handle)
-	app.chiRouter.Delete("/api/v2/logs/{log_id}/delete/", not_implemented.New().Handle)
+	app.chiRouter.Get("/api/v2/logs/{log_id}/get/", contact_logs_get_one.New().Handle)
+	app.chiRouter.Put("/api/v2/logs/{log_id}/update/", not_implemented.New().Handle)    // contact_logs_update
+	app.chiRouter.Delete("/api/v2/logs/{log_id}/delete/", not_implemented.New().Handle) // contact_logs_delete
 
 	app.chiRouter.Get("/api/v2/stats/count_of_interactions/", not_implemented.New().Handle)
 	app.chiRouter.Get("/api/v2/stats/count_of_interactions/{name}/", not_implemented.New().Handle)

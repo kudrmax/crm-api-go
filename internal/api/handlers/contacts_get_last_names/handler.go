@@ -2,6 +2,7 @@ package contacts_get_last_names
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -19,6 +20,7 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 	names, err := h.service.GetLastContactsNames(10)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println(err)
 		return
 	}
 

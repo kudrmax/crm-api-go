@@ -30,6 +30,7 @@ func (h *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := h.service.Update(name, contactUpdateData)
+
 	if errors.Is(err, my_errors.NameAlreadyUsedErr) {
 		http.Error(w, err.Error(), http.StatusConflict)
 		return

@@ -2,6 +2,7 @@ package contacts
 
 import (
 	"errors"
+	"log"
 	"strings"
 
 	"gorm.io/gorm"
@@ -16,7 +17,7 @@ type Repository struct {
 }
 
 func New(
-	//log internal.Log,
+//log internal.Log,
 	db *gorm.DB,
 ) *Repository {
 	return &Repository{
@@ -36,12 +37,19 @@ func (r *Repository) GetByName(name string) (*contact.Contact, error) {
 }
 
 func (r *Repository) GetAll() ([]*contact.Contact, error) {
-	contactModels := make([]*contact.Contact, 0)
+	contactModels := make([]contact.Contact, 0)
 	err := r.db.Find(&contactModels).Error
 	if err != nil {
+		log.Println("HERE")
 		return nil, err
 	}
-	return contactModels, nil
+
+	result := make([]*contact.Contact, 0, len(contactModels))
+	for _, contactModel := range contactModels {
+		result = append(result, &contactModel)
+	}
+
+	return result, nil
 }
 
 func (r *Repository) Create(contact *contact.Contact) error {
@@ -70,7 +78,7 @@ func (r *Repository) Update(contactModel *contact.Contact, contactUpdateData *co
 }
 
 func (r *Repository) GetLastContacts(count uint) ([]*contact.Contact, error) {
-	models, err := r.GetAll()
+	models, err := r.GetAll() // TODO переделать чтобы была какая-то соритровка
 	if err != nil {
 		return nil, err
 	}
